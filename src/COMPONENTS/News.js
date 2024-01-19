@@ -2,7 +2,11 @@ import React, { useState, useEffect } from "react";
 import NewsItem from "./NewsItems";
 import Spinner from "./spinner.js";
 
+//After (npm install react-infinite-scroll-component)
+import InfiniteScroll from "react-infinite-scroll-component";
+
 export default function News(props) {
+  let count = 1;
   const [newsData, setNewsData] = useState({
     articles: [],
     page: 1,
@@ -12,16 +16,17 @@ export default function News(props) {
 
   useEffect(() => {
     const fetchData = async () => {
+      console.log("fetchData is being called");
+
       setNewsData((prevData) => ({
-        ...prevData, // Spread the current state
-        loading: true, // Update only 'loading'
+        ...prevData,
+        loading: true,
       }));
       const apiUrl = `https://newsapi.org/v2/top-headlines?country=us&category=${props.category}`;
-      // const apiKey = {props.myApiKey};
 
       try {
         const response = await fetch(
-          `${apiUrl}&apiKey=${props.myApiKey}&page=${newsData.page}&pageSize=${props.pageSize}`
+          `${apiUrl}&apiKey=${props.myApiKey}&page=1&pageSize=${props.pageSize}`
         );
         const data = await response.json();
         console.log("Search Results", data.totalResults);
@@ -29,7 +34,7 @@ export default function News(props) {
         if (data.articles) {
           setNewsData((prevData) => ({
             articles: data.articles,
-            page: newsData.page,
+            page: 2,
             totalResults: data.totalResults,
             loading: false,
           }));
@@ -40,49 +45,26 @@ export default function News(props) {
     };
 
     fetchData();
-  }, [newsData.page, props.pageSize, props.category, props.myApiKey]);
+  }, [props.pageSize, props.category, props.myApiKey]);
 
-  const pageChange = async () => {
+  const fetchMoreData = async () => {
+    console.log("fetchMoreData is being called", newsData.page);
+
     setNewsData((prevData) => ({
-      ...prevData, // Spread the current state
-      loading: true, // Update only 'loading'
+      ...prevData,
+      page: newsData.page + 1,
     }));
 
     const apiUrl = `https://newsapi.org/v2/top-headlines?country=us&category=${props.category}`;
-    // const apiKey = {props.myApiKey};
     const response = await fetch(
-      `${apiUrl}&apiKey=${props.myApiKey}&page=${newsData.page - 1}&pageSize=${
-        props.pageSize
-      }`
+      `${apiUrl}&apiKey=${props.myApiKey}&page=${newsData.page}&pageSize=${props.pageSize}`
     );
     const data = await response.json();
 
     setNewsData((prevData) => ({
       ...prevData,
-      articles: data.articles,
-      totalResults: data.totalResults,
-      loading: true,
+      articles: newsData.articles.concat(data.articles),
     }));
-  };
-  const handlePreviousClick = async () => {
-    if (newsData.page > 1) {
-      console.log("Page is", newsData.page);
-      console.log("Previous");
-
-      setNewsData((prevData) => ({
-        ...prevData,
-        page: newsData.page - 1,
-      }));
-      pageChange();
-    }
-  };
-  const handleNextClick = async () => {
-    console.log("Next");
-    setNewsData((prevData) => ({
-      ...prevData,
-      page: newsData.page + 1,
-    }));
-    pageChange();
   };
 
   return (
@@ -92,36 +74,34 @@ export default function News(props) {
         FlashBuzz <br />(
         {props.category.charAt(0).toUpperCase() + props.category.slice(1)})
       </h2>
-      {!newsData.loading && (
-        <div className="row my-2 mx-3">
-          {newsData.articles.map((article, index) => (
-            <div key={index} className="col-md-4 my-2">
-              <NewsItem article={article} />
-            </div>
-          ))}
-        </div>
-      )}
-      <div className="container d-flex justify-content-between">
-        <button
-          type="button"
-          onClick={handlePreviousClick}
-          className="btn btn-dark mx-10-"
-          disabled={newsData.page <= 1}
-        >
-          Previous
-        </button>
-        {newsData.page}
-        <button
-          type="button"
-          onClick={handleNextClick}
-          className="btn btn-dark mx-3"
-          disabled={
-            newsData.page >= Math.ceil(newsData.totalResults / props.pageSize)
-          }
-        >
-          Next
-        </button>
-      </div>
+
+      <InfiniteScroll
+        dataLength={newsData.articles.length}
+        next={fetchMoreData}
+        hasMore={newsData.articles.length !== newsData.totalResults}
+        loader={<Spinner />}
+        endMessage={
+          <p style={{ textAlign: "center" }}>
+            <b>Yay! You have seen it all</b>
+          </p>
+        }
+      >
+        {/* //-------------------------------- */}
+        {
+          <div className="row my-2 mx-3">
+            {newsData.articles.map((article, index) => (
+              <div key={index} className="col-md-4 my-2">
+                <NewsItem
+                  article={article}
+                  pageNo={newsData.page}
+                  count={count++}
+                />
+              </div>
+            ))}
+          </div>
+        }
+        {/* //-------------------------------- */}
+      </InfiniteScroll>
     </div>
   );
 }
