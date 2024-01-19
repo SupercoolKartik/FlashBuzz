@@ -6,7 +6,6 @@ import Spinner from "./spinner.js";
 import InfiniteScroll from "react-infinite-scroll-component";
 
 export default function News(props) {
-  let count = 1;
   const [newsData, setNewsData] = useState({
     articles: [],
     page: 1,
@@ -17,18 +16,20 @@ export default function News(props) {
   useEffect(() => {
     const fetchData = async () => {
       console.log("fetchData is being called");
-
+      props.setProgress(20);
       setNewsData((prevData) => ({
         ...prevData,
         loading: true,
       }));
+      props.setProgress(50);
       const apiUrl = `https://newsapi.org/v2/top-headlines?country=us&category=${props.category}`;
-
+      props.setProgress(70);
       try {
         const response = await fetch(
           `${apiUrl}&apiKey=${props.myApiKey}&page=1&pageSize=${props.pageSize}`
         );
         const data = await response.json();
+        props.setProgress(100);
         console.log("Search Results", data.totalResults);
 
         if (data.articles) {
@@ -54,13 +55,13 @@ export default function News(props) {
       ...prevData,
       page: newsData.page + 1,
     }));
-
+    props.setProgress(50);
     const apiUrl = `https://newsapi.org/v2/top-headlines?country=us&category=${props.category}`;
     const response = await fetch(
       `${apiUrl}&apiKey=${props.myApiKey}&page=${newsData.page}&pageSize=${props.pageSize}`
     );
     const data = await response.json();
-
+    props.setProgress(100);
     setNewsData((prevData) => ({
       ...prevData,
       articles: newsData.articles.concat(data.articles),
@@ -91,11 +92,7 @@ export default function News(props) {
           <div className="row my-2 mx-3">
             {newsData.articles.map((article, index) => (
               <div key={index} className="col-md-4 my-2">
-                <NewsItem
-                  article={article}
-                  pageNo={newsData.page}
-                  count={count++}
-                />
+                <NewsItem article={article} pageNo={newsData.page} />
               </div>
             ))}
           </div>
