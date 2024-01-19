@@ -6,80 +6,69 @@ import Spinner from "./spinner.js";
 import InfiniteScroll from "react-infinite-scroll-component";
 
 export default function News(props) {
-  const [newsData, setNewsData] = useState({
-    articles: [],
-    page: 1,
-    loading: false,
-    totalResults: 0,
-  });
+  const [articles, setArticles] = useState([]);
+  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [totalResults, setTotalResults] = useState(0);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      console.log("fetchData is being called");
-      props.setProgress(20);
-      setNewsData((prevData) => ({
-        ...prevData,
-        loading: true,
-      }));
-      props.setProgress(50);
-      const apiUrl = `https://newsapi.org/v2/top-headlines?country=us&category=${props.category}`;
-      props.setProgress(70);
-      try {
-        const response = await fetch(
-          `${apiUrl}&apiKey=${props.myApiKey}&page=1&pageSize=${props.pageSize}`
-        );
-        const data = await response.json();
-        props.setProgress(100);
-        console.log("Search Results", data.totalResults);
+  const fetchData = async () => {
+    console.log("fetchData is being called");
+    props.setProgress(20);
 
-        if (data.articles) {
-          setNewsData((prevData) => ({
-            articles: data.articles,
-            page: 2,
-            totalResults: data.totalResults,
-            loading: false,
-          }));
-        }
-      } catch (error) {
-        console.error("Error fetching data:", error);
+    setLoading(true);
+
+    props.setProgress(50);
+    const apiUrl = `https://newsapi.org/v2/top-headlines?country=us&category=${props.category}`;
+    props.setProgress(70);
+    try {
+      const response = await fetch(
+        `${apiUrl}&apiKey=${props.myApiKey}&page=1&pageSize=${props.pageSize}`
+      );
+      const parsedData = await response.json();
+      props.setProgress(100);
+      console.log("Search Results", parsedData.totalResults);
+
+      if (parsedData.articles) {
+        setArticles(parsedData.articles);
+        setPage(2);
+        setTotalResults(parsedData.totalResults);
+        setLoading(false);
       }
-    };
-
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+  useEffect(() => {
     fetchData();
-  }, [props.pageSize, props.category, props.myApiKey]);
+  }, [props.category]);
 
   const fetchMoreData = async () => {
-    console.log("fetchMoreData is being called", newsData.page);
+    console.log("fetchMoreData is being called", page);
 
-    setNewsData((prevData) => ({
-      ...prevData,
-      page: newsData.page + 1,
-    }));
+    setPage(page + 1);
     props.setProgress(50);
     const apiUrl = `https://newsapi.org/v2/top-headlines?country=us&category=${props.category}`;
     const response = await fetch(
-      `${apiUrl}&apiKey=${props.myApiKey}&page=${newsData.page}&pageSize=${props.pageSize}`
+      `${apiUrl}&apiKey=${props.myApiKey}&page=${page}&pageSize=${props.pageSize}`
     );
-    const data = await response.json();
+    const parsedData = await response.json();
     props.setProgress(100);
-    setNewsData((prevData) => ({
-      ...prevData,
-      articles: newsData.articles.concat(data.articles),
-    }));
+
+    setArticles(articles.concat(parsedData.articles));
   };
 
   return (
     <div className="container">
-      {newsData.loading && <Spinner />}
+      {loading && <Spinner />}
       <h2 className="mt-4 mb-4">
         FlashBuzz <br />(
         {props.category.charAt(0).toUpperCase() + props.category.slice(1)})
       </h2>
 
       <InfiniteScroll
-        dataLength={newsData.articles.length}
+        dataLength={articles.length}
         next={fetchMoreData}
-        hasMore={newsData.articles.length !== newsData.totalResults}
+        hasMore={articles.length !== totalResults}
         loader={<Spinner />}
         endMessage={
           <p style={{ textAlign: "center" }}>
@@ -90,9 +79,9 @@ export default function News(props) {
         {/* //-------------------------------- */}
         {
           <div className="row my-2 mx-3">
-            {newsData.articles.map((article, index) => (
+            {articles.map((article, index) => (
               <div key={index} className="col-md-4 my-2">
-                <NewsItem article={article} pageNo={newsData.page} />
+                <NewsItem article={article} pageNo={page} />
               </div>
             ))}
           </div>
