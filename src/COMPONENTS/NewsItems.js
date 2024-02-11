@@ -15,6 +15,13 @@ export default function NewsItems(props) {
         />
         <span
           className="badge badge-danger position-absolute top-0 start-100 translate-middle rounded-pill"
+          style={{ top: -6, left: -3, zIndex: 2, borderRadius: "50px" }}
+        >
+          {"#"}
+          {props.count}
+        </span>
+        <span
+          className="badge badge-danger position-absolute top-0 start-100 translate-middle rounded-pill"
           style={{ top: -6, right: -1, zIndex: 2, borderRadius: "10px" }}
         >
           {props.article.source.name}
