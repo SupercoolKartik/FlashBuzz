@@ -2,7 +2,7 @@ import "./App.css";
 import NavBar from "./COMPONENTS/NavBar.js";
 import News from "./COMPONENTS/News.js";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 
 //After (npm install --save react-top-loading-bar)
 import LoadingBar from "react-top-loading-bar";
