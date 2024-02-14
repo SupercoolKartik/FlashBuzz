@@ -4,9 +4,6 @@ import News from "./COMPONENTS/News.js";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import React, { useState } from "react";
 
-import dotenv from "dotenv";
-dotenv.config({ path: ".env.local" });
-
 //After (npm install --save react-top-loading-bar)
 import LoadingBar from "react-top-loading-bar";
 
