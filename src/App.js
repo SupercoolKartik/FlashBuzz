@@ -8,7 +8,7 @@ import React, { useState } from "react";
 import LoadingBar from "react-top-loading-bar";
 
 function App() {
-  let myApiKey = "653f31d054fb460a987488c65d6f1468";
+  let myApiKey = "vzHZl1RrPOpJU4e1XsnbwUxLhxbL5Z";
   const [progress, setProgress] = useState(5);
   return (
     <div className="App">
