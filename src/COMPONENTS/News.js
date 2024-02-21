@@ -23,11 +23,11 @@ export default function News(props) {
       setLoading(true);
 
       props.setProgress(50);
-      const apiUrl = `https://newsapi.org/v2/top-headlines?country=us&category=${props.category}`;
+      const apiUrl = `https://flashbuzz-backend.onrender.com/?`;
       props.setProgress(70);
 
       const response = await fetch(
-        `${apiUrl}&apiKey=${props.myApiKey}&page=${page}&pageSize=${props.pageSize}`
+        `${apiUrl}&category=${props.category}&page=${page}&pageSize=${props.pageSize}`
       );
 
       if (!response.ok) {
@@ -57,11 +57,9 @@ export default function News(props) {
   const fetchMoreData = async () => {
     try {
       props.setProgress(50);
-      const apiUrl = `https://newsapi.org/v2/top-headlines?country=us&category=${props.category}`;
+      const apiUrl = `https://flashbuzz-backend.onrender.com/?`;
       const response = await fetch(
-        `${apiUrl}&apiKey=${props.myApiKey}&page=${page + 1}&pageSize=${
-          props.pageSize
-        }`
+        `${apiUrl}&category=${props.category}&page=${page}&pageSize=${props.pageSize}`
       );
 
       if (!response.ok) {
